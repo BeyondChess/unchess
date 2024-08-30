@@ -1,5 +1,6 @@
 import NavBar from '@/app/components/NavBar';
 import './globals.css';
+import { Toaster } from 'sonner';
 
 // const inter = Inter({ subsets: ["latin"] });
 
@@ -41,8 +42,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <NavBar/>
+        <NavBar />
         {children}
+        <Toaster />
       </body>
     </html>
   );
