@@ -2,7 +2,6 @@
 import { socket } from '@/socket'; // Make sure this is correctly configured
 import { Chess, Square } from 'chess.js';
 import { useEffect, useState } from 'react';
-import { Chessboard } from 'react-chessboard';
 import { toast } from 'sonner';
 import { moveValidation } from './gameHandler';
 import { chessErrorToast } from '../components/toast';
@@ -144,13 +143,13 @@ export default function ChessBB() {
             </button>
           </>
         ) : (
-          <>
+          <div className=''>
             <GameBoard
               params={{
                 gameId: gameId,
               }}
             />
-          </>
+          </div>
         )}
       </div>
     </div>

@@ -1,6 +1,9 @@
 import NavBar from '@/app/components/NavBar';
 import { Toaster } from 'sonner';
+
 import '../styles/globals.css';
+import { ThemeProvider } from './components/theme-provider';
+
 // const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
@@ -41,9 +44,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <NavBar />
-        {children}
-        <Toaster />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <NavBar />
+          {children}
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

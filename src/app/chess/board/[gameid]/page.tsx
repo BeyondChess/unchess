@@ -14,6 +14,7 @@ const GameBoard = ({
   };
 }) => {
   const [game, setGame] = useState(new Chess());
+  const [chessHistory, setChessHistory] = useState<ChessMove[]>([]);
   const { gameId } = params;
 
   // Handle Socket connection
@@ -26,6 +27,8 @@ const GameBoard = ({
 
           if (result.newGame) {
             // Update the game state with the new game after the valid move
+            setChessHistory((history) => [...chessHistory, move]);
+
             return result.newGame;
           } else {
             // If validation fails, log the error but do not trigger a toast
@@ -58,6 +61,7 @@ const GameBoard = ({
         if (result.newGame) {
           socket.emit('move', move); // Emit move to server
           moveValid = true;
+          setChessHistory((history) => [...chessHistory, move]);
           return result.newGame;
         } else {
           chessErrorToast(move);
@@ -72,20 +76,41 @@ const GameBoard = ({
     return moveValid;
   };
 
+  console.log(chessHistory);
   return (
-    <>
+    <div className="w-full">
       <p>Game ID: {gameId}</p>
-      <Chessboard
-        position={game.fen()}
-        onPieceDrop={(sourceSquare, targetSquare) =>
-          handleMove({
-            from: sourceSquare,
-            to: targetSquare,
-            promotion: 'q',
-          })
-        }
-      />
-    </>
+      <div className="flex flex-row ">
+        <Chessboard
+          position={game.fen()}
+          onPieceDrop={(sourceSquare, targetSquare) =>
+            handleMove({
+              from: sourceSquare,
+              to: targetSquare,
+              promotion: 'q',
+            })
+          }
+        />
+        <div className="flex-1 border-2 w-72 pr-10">
+          <h2 className="w-full">Move History</h2>
+          <ul className="">
+            {chessHistory.map((move, index) => (
+              <li
+                key={index}
+                className=""
+              >
+                <span className="font-medium">
+                  {index + 1}. {move.from} {'->'} {move.to}
+                </span>
+                <span className="text-xs text-gray-500">
+                  {new Date().toLocaleTimeString()}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
   );
 };
 

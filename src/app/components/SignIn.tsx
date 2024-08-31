@@ -9,7 +9,7 @@ const SignIn = () => {
         await signIn('github');
       }}
     >
-      <button type="submit">Signin</button>
+      <button type="submit" className='underline'>Signin</button>
     </form>
   );
 };
