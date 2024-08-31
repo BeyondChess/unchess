@@ -33,11 +33,9 @@ export default function ChessBB() {
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
 
-
     return () => {
       socket.off('connect', onConnect);
       socket.off('disconnect', onDisconnect);
-      // socket.off('opponentMove', onOpponentMove);
     };
   }, [game]);
 
@@ -120,9 +118,6 @@ export default function ChessBB() {
 
   return (
     <div className="w-3/4 h-1/2">
-      <div>
-        <p>Status: {connected ? 'connected' : 'disconnected'}</p>
-      </div>
       <div>
         {!inGameRoom ? (
           <>
