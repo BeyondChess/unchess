@@ -24,7 +24,7 @@ app.prepare().then(() => {
   io.on('connection', (socket) => {
     console.log('A user connected:', socket.id);
     socket.on('createGameRoom', (gameId) => {
-      console.log("🚀 ~ socket.on ~ gameId:", gameId)
+      console.log('🚀 ~ socket.on ~ gameId:', gameId);
       if (!(gameId in games)) {
         // Create a new game room
         games[gameId] = {

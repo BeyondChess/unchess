@@ -1,3 +1,4 @@
 import { chessErrorToast } from './chessErrorToast';
+import roomCreationSuccessToast from './roomCreationSuccessToast';
 
-export { chessErrorToast };
+export { chessErrorToast, roomCreationSuccessToast };

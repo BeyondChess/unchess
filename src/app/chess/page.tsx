@@ -6,6 +6,7 @@ import { Chessboard } from 'react-chessboard';
 import { toast } from 'sonner';
 import { moveValidation } from './gameHandler';
 import { chessErrorToast } from '../components/toast';
+import GameBoard from './board/[gameid]/page';
 
 interface ChessMove {
   from: Square;
@@ -32,26 +33,11 @@ export default function ChessBB() {
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
 
-    // Handle opponent moves
-    const onOpponentMove = (move: ChessMove) => {
-      try {
-        const result = moveValidation(move, game.fen());
-        if (result.newGame) {
-          setGame(result.newGame);
-        } else {
-          chessErrorToast(move);
-        }
-      } catch (error) {
-        console.error('Error handling opponent move:', error);
-      }
-    };
-
-    socket.on('opponentMove', onOpponentMove);
 
     return () => {
       socket.off('connect', onConnect);
       socket.off('disconnect', onDisconnect);
-      socket.off('opponentMove', onOpponentMove);
+      // socket.off('opponentMove', onOpponentMove);
     };
   }, [game]);
 
@@ -163,15 +149,15 @@ export default function ChessBB() {
             </button>
           </>
         ) : (
-          <p>Game ID: {gameId}</p>
+          <>
+            <GameBoard
+              params={{
+                gameId: gameId,
+              }}
+            />
+          </>
         )}
       </div>
-      <Chessboard
-        position={game.fen()}
-        onPieceDrop={(sourceSquare, targetSquare) =>
-          handleMove({ from: sourceSquare, to: targetSquare, promotion: 'q' })
-        }
-      />
     </div>
   );
 }

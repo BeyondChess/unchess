@@ -1,7 +1,6 @@
 import NavBar from '@/app/components/NavBar';
-import './globals.css';
 import { Toaster } from 'sonner';
-
+import '../styles/globals.css';
 // const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
