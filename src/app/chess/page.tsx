@@ -1,9 +1,11 @@
 'use client';
-import { socket } from '@/socket';
+import { socket } from '@/socket'; // Make sure this is correctly configured
 import { Chess, Square } from 'chess.js';
 import { useEffect, useState } from 'react';
 import { Chessboard } from 'react-chessboard';
 import { toast } from 'sonner';
+import { moveValidation } from './gameHandler';
+import { chessErrorToast } from '../components/toast';
 
 interface ChessMove {
   from: Square;
@@ -13,44 +15,103 @@ interface ChessMove {
 
 export default function ChessBB() {
   const [game, setGame] = useState(new Chess());
-  const [connected, IsConnected] = useState(false);
-  const [transport, setTransport] = useState('N/A');
+  const [gameId, setGameId] = useState('');
+  const [inGameRoom, setInGameRoom] = useState(false);
+  const [connected, setConnected] = useState(false);
 
-  // Handle socket
+  // Handle socket connections
   useEffect(() => {
-    if (socket.connected) {
-      onConnect();
-    }
-    function onConnect() {
-      IsConnected(true);
-      socket.io.engine.on('upgrade', (transport) => {
-        setTransport(transport.name);
-      });
-    }
+    const onConnect = () => {
+      setConnected(true);
+    };
 
-    function onDisconnect() {
-      IsConnected(false);
-      setTransport('N/A');
-    }
+    const onDisconnect = () => {
+      setConnected(false);
+    };
+
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
+
+    // Handle opponent moves
+    const onOpponentMove = (move: ChessMove) => {
+      try {
+        const result = moveValidation(move, game.fen());
+        if (result.newGame) {
+          setGame(result.newGame);
+        } else {
+          chessErrorToast(move);
+        }
+      } catch (error) {
+        console.error('Error handling opponent move:', error);
+      }
+    };
+
+    socket.on('opponentMove', onOpponentMove);
 
     return () => {
       socket.off('connect', onConnect);
       socket.off('disconnect', onDisconnect);
+      socket.off('opponentMove', onOpponentMove);
     };
-  }, []);
+  }, [game]);
+
   // Handle local move and emit to server
   const handleMove = (move: ChessMove) => {
     try {
-      const gameCopy = new Chess(game.fen());
-      const result = gameCopy.move(move);
-
-      if (result) {
-        setGame(gameCopy);
+      const result = moveValidation(move, game.fen());
+      if (result.newGame) {
+        setGame(result.newGame);
+        socket.emit('move', move);
         return true;
       } else {
-        toast.error(`Move from ${move.from} to ${move.to} is invalid.`, {
+        chessErrorToast(move);
+      }
+    } catch (error) {
+      console.log('🚀 ~ handleMove ~ error:', error);
+    }
+
+    return false;
+  };
+
+  const createGameRoom = () => {
+    const newGameId = Math.random().toString(36).substring(2, 9);
+    socket.emit('createGameRoom', newGameId);
+
+    socket.on('gameRoomCreated', ({ gameId }) => {
+      setGameId(gameId);
+
+      setInGameRoom(true);
+      toast.success(`Game room created with ID: ${gameId}`, {
+        duration: 3000,
+      });
+    });
+
+    socket.on('error', ({ message }) => {
+      toast.error(message, {
+        duration: 3000,
+        style: {
+          backgroundColor: '#f56565',
+          color: '#fff',
+          fontWeight: 'bold',
+        },
+      });
+    });
+  };
+
+  // Handle joining a game room
+  const joinGameRoom = () => {
+    if (gameId.trim() !== '') {
+      socket.emit('joinGameRoom', gameId);
+
+      socket.on('gameRoomJoined', ({ gameId }) => {
+        setInGameRoom(true);
+        toast.success(`Joined game room with ID: ${gameId}`, {
+          duration: 3000,
+        });
+      });
+
+      socket.on('error', ({ message }) => {
+        toast.error(message, {
           duration: 3000,
           style: {
             backgroundColor: '#f56565',
@@ -58,10 +119,9 @@ export default function ChessBB() {
             fontWeight: 'bold',
           },
         });
-      }
-    } catch (error) {
-      console.error('Error making move:', error);
-      toast.error('Error making your move.', {
+      });
+    } else {
+      toast.error('Please enter a valid Game ID to join', {
         duration: 3000,
         style: {
           backgroundColor: '#f56565',
@@ -70,15 +130,41 @@ export default function ChessBB() {
         },
       });
     }
-
-    return false;
   };
 
   return (
     <div className="w-3/4 h-1/2">
       <div>
         <p>Status: {connected ? 'connected' : 'disconnected'}</p>
-        <p>Transport: {transport}</p>
+      </div>
+      <div>
+        {!inGameRoom ? (
+          <>
+            <button
+              type="button"
+              onClick={createGameRoom}
+              className="bg-blue-500 text-white px-4 py-2 rounded"
+            >
+              Create Game Room
+            </button>
+            <input
+              type="text"
+              value={gameId}
+              onChange={(e) => setGameId(e.target.value)}
+              placeholder="Enter Game ID"
+              className="ml-2 px-2 py-1 border rounded"
+            />
+            <button
+              type="button"
+              onClick={joinGameRoom}
+              className="bg-green-500 text-white px-4 py-2 ml-2 rounded"
+            >
+              Join Game Room
+            </button>
+          </>
+        ) : (
+          <p>Game ID: {gameId}</p>
+        )}
       </div>
       <Chessboard
         position={game.fen()}

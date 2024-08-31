@@ -23,10 +23,47 @@ app.prepare().then(() => {
   // Socket.IO connection handler
   io.on('connection', (socket) => {
     console.log('A user connected:', socket.id);
+    socket.on('createGameRoom', (gameId) => {
+      console.log("🚀 ~ socket.on ~ gameId:", gameId)
+      if (!(gameId in games)) {
+        // Create a new game room
+        games[gameId] = {
+          player1: [socket.id], // Add the player who created the room
+          player2: null,
+          // Additional game setup here
+        };
 
+        socket.join(gameId); // Join the player to the room
+        socket.emit('gameRoomCreated', { gameId });
+        console.log(`Game room ${gameId} created by player ${socket.id}`);
+      } else {
+        socket.emit('error', { message: 'Game room already exists!' });
+      }
+    });
     socket.on('move', (move) => {
       // Broadcast the move to all other connected clients
       socket.broadcast.emit('opponentMove', move);
+    });
+
+    // Join an existing game room
+    socket.on('joinGameRoom', (gameId) => {
+      if (gameId in games) {
+        const game = games[gameId];
+        if (game.player2 === null) {
+          game.player2 = socket.id; // Add the second player to the room
+
+          socket.join(gameId); // Join the player to the room
+          socket.emit('gameRoomJoined', { gameId });
+          console.log(`Player ${socket.id} joined game room ${gameId}`);
+
+          // Notify both players that the game can start
+          io.to(gameId).emit('startGame', { gameId });
+        } else {
+          socket.emit('error', { message: 'Game room is full!' });
+        }
+      } else {
+        socket.emit('error', { message: 'Game room does not exist!' });
+      }
     });
 
     // Handle disconnection
