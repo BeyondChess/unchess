@@ -20,43 +20,36 @@ app.prepare().then(() => {
   });
 
   const games = {};
-  // Socket.IO connection handler
+
   io.on('connection', (socket) => {
     console.log('A user connected:', socket.id);
-    socket.on('createGameRoom', (gameId) => {
-      console.log('🚀 ~ socket.on ~ gameId:', gameId);
-      if (!(gameId in games)) {
-        // Create a new game room
-        games[gameId] = {
-          player1: [socket.id], // Add the player who created the room
-          player2: null,
-          // Additional game setup here
-        };
 
-        socket.join(gameId); // Join the player to the room
+    socket.on('createGameRoom', (gameId) => {
+      if (!(gameId in games)) {
+        games[gameId] = {
+          player1: [socket.id],
+          player2: null,
+        };
+        console.log('🚀 ~ socket.on ~ games:', games);
+
+        socket.join(gameId);
         socket.emit('gameRoomCreated', { gameId });
         console.log(`Game room ${gameId} created by player ${socket.id}`);
       } else {
         socket.emit('error', { message: 'Game room already exists!' });
       }
     });
-    socket.on('move', (move) => {
-      // Broadcast the move to all other connected clients
-      socket.broadcast.emit('opponentMove', move);
-    });
 
-    // Join an existing game room
     socket.on('joinGameRoom', (gameId) => {
       if (gameId in games) {
         const game = games[gameId];
         if (game.player2 === null) {
-          game.player2 = socket.id; // Add the second player to the room
+          game.player2 = socket.id;
 
-          socket.join(gameId); // Join the player to the room
+          socket.join(gameId);
           socket.emit('gameRoomJoined', { gameId });
           console.log(`Player ${socket.id} joined game room ${gameId}`);
 
-          // Notify both players that the game can start
           io.to(gameId).emit('startGame', { gameId });
         } else {
           socket.emit('error', { message: 'Game room is full!' });
@@ -66,13 +59,21 @@ app.prepare().then(() => {
       }
     });
 
-    // Handle disconnection
+    socket.on('getAllGameRooms', () => {
+      const gameRooms = Object.keys(games);
+      console.log('🚀 ~ socket.on ~ gameRooms:', gameRooms);
+      socket.emit('gameRoomsList', gameRooms);
+    });
+
+    disconnectingsocket.on('move', (move) => {
+      socket.broadcast.emit('opponentMove', move);
+    });
+
     socket.on('disconnect', () => {
       console.log('User disconnected:', socket.id);
     });
   });
 
-  // Start the server on port 3000 (or use a different port if needed)
   server.listen(3000, (err) => {
     if (err) throw err;
     console.log('> Ready on http://localhost:3000');

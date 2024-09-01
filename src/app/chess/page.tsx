@@ -1,75 +1,42 @@
 'use client';
-import { socket } from '@/socket'; // Make sure this is correctly configured
-import { Chess, Square } from 'chess.js';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { moveValidation } from './gameHandler';
-import { chessErrorToast } from '../components/toast';
 import GameBoard from './board/[gameid]/page';
-
-interface ChessMove {
-  from: Square;
-  to: Square;
-  promotion: string;
-}
+import { socket } from '@/socket';
 
 export default function ChessBB() {
-  const [game, setGame] = useState(new Chess());
   const [gameId, setGameId] = useState('');
   const [inGameRoom, setInGameRoom] = useState(false);
-  const [connected, setConnected] = useState(false);
+  const [gameRooms, setGameRooms] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  // Handle socket connections
   useEffect(() => {
-    const onConnect = () => {
-      setConnected(true);
+    // Handle incoming game room list
+    const handleGameRoomsList = (rooms: string[]) => {
+      setGameRooms(rooms);
+      console.log('🚀 ~ handleGameRoomsList ~ rooms:', rooms);
     };
 
-    const onDisconnect = () => {
-      setConnected(false);
-    };
+    socket.emit('getAllGameRooms')
 
-    socket.on('connect', onConnect);
-    socket.on('disconnect', onDisconnect);
-
-    return () => {
-      socket.off('connect', onConnect);
-      socket.off('disconnect', onDisconnect);
-    };
-  }, [game]);
-
-  // Handle local move and emit to server
-  const handleMove = (move: ChessMove) => {
-    try {
-      const result = moveValidation(move, game.fen());
-      if (result.newGame) {
-        setGame(result.newGame);
-        socket.emit('move', move);
-        return true;
-      } else {
-        chessErrorToast(move);
-      }
-    } catch (error) {
-      console.log('🚀 ~ handleMove ~ error:', error);
-    }
-
-    return false;
-  };
-
-  const createGameRoom = () => {
-    const newGameId = Math.random().toString(36).substring(2, 9);
-    socket.emit('createGameRoom', newGameId);
-
-    socket.on('gameRoomCreated', ({ gameId }) => {
+    // Handle room creation
+    const handleGameRoomCreated = ({ gameId }: { gameId: string }) => {
       setGameId(gameId);
-
       setInGameRoom(true);
-      toast.success(`Game room created with ID: ${gameId}`, {
-        duration: 3000,
-      });
-    });
+      toast.success(`Game room created with ID: ${gameId}`, { duration: 3000 });
+      setLoading(false);
+    };
 
-    socket.on('error', ({ message }) => {
+    // Handle room joining
+    const handleGameRoomJoined = ({ gameId }: { gameId: string }) => {
+      setGameId(gameId);
+      setInGameRoom(true);
+      toast.success(`Joined game room with ID: ${gameId}`, { duration: 3000 });
+      setLoading(false);
+    };
+
+    // Handle errors
+    const handleError = ({ message }: { message: string }) => {
       toast.error(message, {
         duration: 3000,
         style: {
@@ -78,31 +45,34 @@ export default function ChessBB() {
           fontWeight: 'bold',
         },
       });
-    });
+      setLoading(false);
+    };
+
+    socket.on('gameRoomsList', handleGameRoomsList);
+    socket.on('gameRoomCreated', handleGameRoomCreated);
+    socket.on('gameRoomJoined', handleGameRoomJoined);
+    socket.on('error', handleError);
+
+    // Cleanup
+    return () => {
+      socket.off('gameRoomsList', handleGameRoomsList);
+      socket.off('gameRoomCreated', handleGameRoomCreated);
+      socket.off('gameRoomJoined', handleGameRoomJoined);
+      socket.off('error', handleError);
+    };
+  }, []);
+
+  const createGameRoom = () => {
+    setLoading(true);
+    const newGameId = Math.random().toString(36).substring(2, 9);
+    socket.emit('createGameRoom', newGameId);
   };
 
-  // Handle joining a game room
-  const joinGameRoom = () => {
-    if (gameId.trim() !== '') {
-      socket.emit('joinGameRoom', gameId);
-
-      socket.on('gameRoomJoined', ({ gameId }) => {
-        setInGameRoom(true);
-        toast.success(`Joined game room with ID: ${gameId}`, {
-          duration: 3000,
-        });
-      });
-
-      socket.on('error', ({ message }) => {
-        toast.error(message, {
-          duration: 3000,
-          style: {
-            backgroundColor: '#f56565',
-            color: '#fff',
-            fontWeight: 'bold',
-          },
-        });
-      });
+  const joinGameRoom = (id?: string) => {
+    const roomId = id || gameId.trim();
+    if (roomId !== '') {
+      setLoading(true);
+      socket.emit('joinGameRoom', roomId);
     } else {
       toast.error('Please enter a valid Game ID to join', {
         duration: 3000,
@@ -115,6 +85,7 @@ export default function ChessBB() {
     }
   };
 
+
   return (
     <div className="w-3/4 h-1/2">
       <div>
@@ -123,9 +94,12 @@ export default function ChessBB() {
             <button
               type="button"
               onClick={createGameRoom}
-              className="bg-blue-500 text-white px-4 py-2 rounded"
+              className={`bg-blue-500 text-white px-4 py-2 rounded ${
+                loading ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+              disabled={loading}
             >
-              Create Game Room
+              {loading ? 'Creating...' : 'Create Game Room'}
             </button>
             <input
               type="text"
@@ -136,14 +110,35 @@ export default function ChessBB() {
             />
             <button
               type="button"
-              onClick={joinGameRoom}
-              className="bg-green-500 text-white px-4 py-2 ml-2 rounded"
+              onClick={() => joinGameRoom()}
+              className={`bg-green-500 text-white px-4 py-2 ml-2 rounded ${
+                loading ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+              disabled={loading}
             >
-              Join Game Room
+              {loading ? 'Joining...' : 'Join Game Room'}
             </button>
+
+            <h2 className="mt-4">Available Game Rooms:</h2>
+            <ul className="list-disc pl-5">
+              {gameRooms.length > 0 ? (
+                gameRooms.map((room, index) => (
+                  <li key={index}>
+                    <button
+                      onClick={() => joinGameRoom(room)}
+                      className="text-blue-500 underline"
+                    >
+                      {room}
+                    </button>
+                  </li>
+                ))
+              ) : (
+                <li>No game rooms available.</li>
+              )}
+            </ul>
           </>
         ) : (
-          <div className=''>
+          <div>
             <GameBoard
               params={{
                 gameId: gameId,
