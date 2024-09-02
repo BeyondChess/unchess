@@ -1,3 +1,4 @@
+'use state';
 import { chessErrorToast } from '@/app/components/toast';
 import { ChessMove } from '@/app/types/chess.types';
 import { Chess } from 'chess.js';
@@ -59,7 +60,7 @@ const GameBoard = ({
       try {
         const result = moveValidation(move, currentGame.fen());
         if (result.newGame) {
-          socket.emit('move', move); // Emit move to server
+          socket.emit('move', move, gameId); // Emit move to server
           moveValid = true;
           setChessHistory((history) => [...chessHistory, move]);
           return result.newGame;
@@ -95,10 +96,7 @@ const GameBoard = ({
           <h2 className="w-full">Move History</h2>
           <ul className="">
             {chessHistory.map((move, index) => (
-              <li
-                key={index}
-                className=""
-              >
+              <li key={index} className="">
                 <span className="font-medium">
                   {index + 1}. {move.from} {'->'} {move.to}
                 </span>

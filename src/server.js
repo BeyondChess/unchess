@@ -65,11 +65,14 @@ app.prepare().then(() => {
       socket.emit('gameRoomsList', gameRooms);
     });
 
-    disconnectingsocket.on('move', (move) => {
-      socket.broadcast.emit('opponentMove', move);
+    socket.on('move', (move, roomId) => {
+      socket.to(roomId).emit('opponentMove', move);
     });
 
     socket.on('disconnect', () => {
+      // remove the active room
+      
+      // room is handeled is by the end user
       console.log('User disconnected:', socket.id);
     });
   });
