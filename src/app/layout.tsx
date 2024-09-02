@@ -3,6 +3,7 @@ import { Toaster } from 'sonner';
 
 import '../styles/globals.css';
 import { ThemeProvider } from './components/theme-provider';
+import ToggleButton from './components/Theme/ToggleButton';
 
 // const inter = Inter({ subsets: ["latin"] });
 
@@ -43,7 +44,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
+      <body className="font-mono">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -51,7 +52,10 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <NavBar />
-          {children}
+          <div className="container-light dark:container">
+            {children}
+          </div>
+          <ToggleButton /> {/* Place the ToggleButton component here */}
           <Toaster />
         </ThemeProvider>
       </body>

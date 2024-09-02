@@ -4,67 +4,67 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 47.4% 11.2%;
+    --background: rgb(200, 14, 97%);
+    --foreground: rgb(160, 12, 33%);
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: rgb(200, 14, 97%);
+    --muted-foreground: rgb(160, 12, 33%);
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 47.4% 11.2%;
+    --popover: rgb(200, 14, 97%);
+    --popover-foreground: rgb(160, 12, 33%);
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
+    --border: rgb(200, 14, 97%);
+    --input: rgb(200, 14, 97%);
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 47.4% 11.2%;
+    --card: rgb(200, 14, 97%);
+    --card-foreground: rgb(160, 12, 33%);
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: rgb(160, 12, 33%);
+    --primary-foreground: rgb(50, 90, 52%);
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: rgb(200, 14, 97%);
+    --secondary-foreground: rgb(160, 12, 33%);
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: rgb(200, 14, 97%);
+    --accent-foreground: rgb(160, 12, 33%);
 
-    --destructive: 0 100% 50%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: rgb(50, 90, 52%);
+    --destructive-foreground: rgb(200, 14, 97%);
 
-    --ring: 215 20.2% 65.1%;
+    --ring: rgb(220, 4, 28%);
 
     --radius: 0.5rem;
   }
 
   .dark {
-    --background: 224 71% 4%;
-    --foreground: 213 31% 91%;
+    --background: rgb(0, 0, 0); /* Pure black background */
+    --foreground: rgb(200, 14, 97%); /* Light foreground color for contrast */
 
-    --muted: 223 47% 11%;
-    --muted-foreground: 215.4 16.3% 56.9%;
+    --muted: rgb(0, 0, 0);
+    --muted-foreground: rgb(50, 90, 52%);
 
-    --accent: 216 34% 17%;
-    --accent-foreground: 210 40% 98%;
+    --accent: rgb(0, 0, 0);
+    --accent-foreground: rgb(200, 14, 97%);
 
-    --popover: 224 71% 4%;
-    --popover-foreground: 215 20.2% 65.1%;
+    --popover: rgb(0, 0, 0);
+    --popover-foreground: rgb(50, 90, 52%);
 
-    --border: 216 34% 17%;
-    --input: 216 34% 17%;
+    --border: rgb(0, 0, 0);
+    --input: rgb(0, 0, 0);
 
-    --card: 224 71% 4%;
-    --card-foreground: 213 31% 91%;
+    --card: rgb(0, 0, 0);
+    --card-foreground: rgb(200, 14, 97%);
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 1.2%;
+    --primary: rgb(200, 14, 97%);
+    --primary-foreground: rgb(50, 90, 52%);
 
-    --secondary: 222.2 47.4% 11.2%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: rgb(0, 0, 0);
+    --secondary-foreground: rgb(200, 14, 97%);
 
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: rgb(50, 90, 52%);
+    --destructive-foreground: rgb(200, 14, 97%);
 
-    --ring: 216 34% 17%;
+    --ring: rgb(0, 0, 0);
 
     --radius: 0.5rem;
   }
@@ -76,19 +76,72 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
   }
 }
 
 @layer components {
-  /* From Uiverse.io by adamgiebl */
   .container {
     width: 100%;
     height: 100%;
     --color: rgba(114, 114, 114, 0.3);
-    background-color: #191a1a;
-    background-image: linear-gradient(0deg, transparent 24%, var(--color) 25%, var(--color) 26%, transparent 27%, transparent 74%, var(--color) 75%, var(--color) 76%, transparent 77%, transparent),
-      linear-gradient(90deg, transparent 24%, var(--color) 25%, var(--color) 26%, transparent 27%, transparent 74%, var(--color) 75%, var(--color) 76%, transparent 77%, transparent);
+    background-color: rgb(25, 26, 26);
+    background-image: linear-gradient(
+        0deg,
+        transparent 24%,
+        var(--color) 25%,
+        var(--color) 26%,
+        transparent 27%,
+        transparent 74%,
+        var(--color) 75%,
+        var(--color) 76%,
+        transparent 77%,
+        transparent
+      ),
+      linear-gradient(
+        90deg,
+        transparent 24%,
+        var(--color) 25%,
+        var(--color) 26%,
+        transparent 27%,
+        transparent 74%,
+        var(--color) 75%,
+        var(--color) 76%,
+        transparent 77%,
+        transparent
+      );
+    background-size: 55px 55px;
+  }
+
+  .container-white {
+    width: 100%;
+    height: 100%;
+    --color: rgb(225, 225, 225);
+    background-color: rgb(243, 243, 243);
+    background-image: linear-gradient(
+        0deg,
+        transparent 24%,
+        var(--color) 25%,
+        var(--color) 26%,
+        transparent 27%,
+        transparent 74%,
+        var(--color) 75%,
+        var(--color) 76%,
+        transparent 77%,
+        transparent
+      ),
+      linear-gradient(
+        90deg,
+        transparent 24%,
+        var(--color) 25%,
+        var(--color) 26%,
+        transparent 27%,
+        transparent 74%,
+        var(--color) 75%,
+        var(--color) 76%,
+        transparent 77%,
+        transparent
+      );
     background-size: 55px 55px;
   }
 }

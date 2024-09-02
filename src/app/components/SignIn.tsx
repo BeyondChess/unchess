@@ -1,16 +1,15 @@
 import { signIn } from '@/auth';
+import Link from 'next/link';
 import React from 'react';
 
 const SignIn = () => {
   return (
-    <form
-      action={async () => {
-        'use server';
-        await signIn('github');
-      }}
+    <Link
+      className="underline hover:underline-offset-2 hover:font-bold"
+      href={'/auth/signin'}
     >
-      <button type="submit" className='underline'>Signin</button>
-    </form>
+      SignIn
+    </Link>
   );
 };
 

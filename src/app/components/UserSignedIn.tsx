@@ -22,7 +22,7 @@ const UserSignedIn: React.FC<UserSignedInProps> = ({ user }) => {
         <NavigationMenuList>
           <NavigationMenuItem>
             {/* Wrap the Avatar and Name inside NavigationMenuTrigger */}
-            <NavigationMenuTrigger className="flex items-center space-x-2 p-2 rounded-full hover:font-bold ">
+            <NavigationMenuTrigger className="flex items-center space-x-2 p-2 py-6 underline hover:font-bold ">
               <img
                 src={user.image || '/default-avatar.png'}
                 alt={user.name || 'User Avatar'}
@@ -30,11 +30,11 @@ const UserSignedIn: React.FC<UserSignedInProps> = ({ user }) => {
               />
               <span>{user.name}</span>
             </NavigationMenuTrigger>
-            <NavigationMenuContent className="p-2 rounded-md shadow-lg">
+            <NavigationMenuContent className="p-2 rounded-md shadow-lg w-full">
               <NavigationMenuLink asChild>
                 <Link href="/docs" legacyBehavior passHref>
                   <NavigationMenuLink className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
-                    Documentation
+                    Match Room
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuLink>
