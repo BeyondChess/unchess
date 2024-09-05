@@ -1,15 +1,16 @@
 import { signIn } from '@/auth';
 import Link from 'next/link';
 import React from 'react';
+import StyledLink from './ui/Link/StyledLink';
 
 const SignIn = () => {
   return (
-    <Link
-      className="underline hover:underline-offset-2 hover:font-bold"
+    <StyledLink
+      className="hover:underline hover:font-bold"
       href={'/auth/signin'}
     >
       SignIn
-    </Link>
+    </StyledLink>
   );
 };
 

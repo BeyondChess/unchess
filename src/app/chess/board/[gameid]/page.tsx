@@ -4,8 +4,8 @@ import { ChessMove } from '@/app/types/chess.types';
 import { Chess } from 'chess.js';
 import React, { useEffect, useState, useCallback } from 'react';
 import { Chessboard } from 'react-chessboard';
-import { moveValidation } from '../../gameHandler';
 import { socket } from '@/socket';
+import { moveValidation } from '@/app/lib/gameHandler';
 
 const GameBoard = ({
   params,

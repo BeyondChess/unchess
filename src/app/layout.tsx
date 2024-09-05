@@ -1,11 +1,17 @@
 import NavBar from '@/app/components/NavBar';
 import { Toaster } from 'sonner';
+import { VT323 } from 'next/font/google';
 
 import '../styles/globals.css';
 import { ThemeProvider } from './components/theme-provider';
 import ToggleButton from './components/Theme/ToggleButton';
 
 // const inter = Inter({ subsets: ["latin"] });
+const vt = VT323({
+  subsets: ['latin'],
+  weight: '400',
+  display: 'swap',
+});
 
 export const metadata = {
   title: 'unchess',
@@ -43,8 +49,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="font-mono">
+    <html lang="en" className={vt.className}>
+      <body className="container-white dark:container ">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -52,9 +58,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <NavBar />
-          <div className="container-light dark:container">
-            {children}
-          </div>
+          <div className="">{children}</div>
           <ToggleButton /> {/* Place the ToggleButton component here */}
           <Toaster />
         </ThemeProvider>
