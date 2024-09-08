@@ -5,7 +5,6 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "socket:dev": "node src/socket/server.js",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
