@@ -1,0 +1,14 @@
+{
+  "name": "sockets",
+  "module": "index.ts",
+  "type": "module",
+  "scripts" : {
+    "dev" : "bun run src/server.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
